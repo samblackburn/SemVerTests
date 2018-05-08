@@ -63,5 +63,21 @@ namespace SemVerTests
 
             Assert.AreEqual(2, bar.AccessFoo());
         }
+
+        /// <summary>
+        /// Here we compile Bar against Foo v1, then switch it for Foo v2 at runtime
+        /// </summary>
+        [Test]
+        public void MethodNotFound()
+        {
+            var fooV1 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Foo", @"public class Foo{public int Deprecated() {return 1;}}");
+            var barV1 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Deprecated();}}", fooV1);
+            var fooV2 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Foo", @"public class Foo{}");
+
+            dynamic foo = Assembly.LoadFrom(fooV2).CreateInstance("Foo");
+            dynamic bar = Assembly.LoadFrom(barV1).CreateInstance("Bar");
+
+            Assert.Throws<MissingMethodException>(() => bar.AccessFoo());
+        }
     }
 }
