@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using NUnit.Framework;
 using SACrunch;
 
@@ -8,11 +7,9 @@ namespace SemVerTests
     internal class Compiler
     {
         private const string c_MsBuild = @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe";
-        private static int s_AssemblyNumber = 0;
-
-        internal static string CompileAndCopyLocal(string cs, string reference = null, string assemblyName = null)
+        
+        internal static string CompileAndCopyLocal(string assemblyName, string cs, string reference = null)
         {
-            assemblyName = assemblyName ?? "Assembly" + ++s_AssemblyNumber;
             using (var tempDir = new TempDir())
             {
                 if (reference != null)
@@ -39,7 +36,7 @@ namespace SemVerTests
         private static void RunMsbuild(TempDir tempDir, string args)
         {
             var buildOutput = ProcessRunner.RunProcess(c_MsBuild, args, tempDir.Path);
-            Console.WriteLine(buildOutput);
+            //Console.WriteLine(buildOutput);
             StringAssert.Contains("Build succeeded.", buildOutput);
             StringAssert.DoesNotContain("Build FAILED.", buildOutput);
         }

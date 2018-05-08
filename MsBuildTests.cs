@@ -10,7 +10,7 @@ namespace SemVerTests
         [Test]
         public void CanCompileCode()
         {
-            var assembly = Compiler.CompileAndCopyLocal(@"public class Foo{public int Version() {return 1;}}");
+            var assembly = Compiler.CompileAndCopyLocal(nameof(CanCompileCode), @"public class Foo{public int Version() {return 1;}}");
 
             Assert.AreEqual(1, ((dynamic) Assembly.LoadFile(assembly).CreateInstance("Foo")).Version());
         }
@@ -21,8 +21,8 @@ namespace SemVerTests
         [Test]
         public void FailToReferenceADll()
         {
-            var assembly1 = Compiler.CompileAndCopyLocal(@"public class Foo{public int Version() {return 1;}}");
-            var assembly2 = Compiler.CompileAndCopyLocal(@"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
+            var assembly1 = Compiler.CompileAndCopyLocal(nameof(FailToReferenceADll) + "Foo", @"public class Foo{public int Version() {return 1;}}");
+            var assembly2 = Compiler.CompileAndCopyLocal(nameof(FailToReferenceADll) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
 
             dynamic foo = Assembly.LoadFile(assembly1).CreateInstance("Foo");
             dynamic bar = Assembly.LoadFile(assembly2).CreateInstance("Bar");
@@ -39,8 +39,8 @@ namespace SemVerTests
         [Test]
         public void SuccessfullyReferenceADll()
         {
-            var assembly1 = Compiler.CompileAndCopyLocal(@"public class Foo{public int Version() {return 1;}}");
-            var assembly2 = Compiler.CompileAndCopyLocal(@"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
+            var assembly1 = Compiler.CompileAndCopyLocal(nameof(SuccessfullyReferenceADll) + "Foo", @"public class Foo{public int Version() {return 1;}}");
+            var assembly2 = Compiler.CompileAndCopyLocal(nameof(SuccessfullyReferenceADll) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
 
             dynamic foo = Assembly.LoadFrom(assembly1).CreateInstance("Foo");
             dynamic bar = Assembly.LoadFrom(assembly2).CreateInstance("Bar");
@@ -54,14 +54,9 @@ namespace SemVerTests
         [Test]
         public void UpgradeAfterCompile()
         {
-            var fooV1 = Compiler.CompileAndCopyLocal(@"public class Foo{public int Version() {return 1;}}", assemblyName: "Foo");
-            var barV1 = Compiler.CompileAndCopyLocal(@"public class Bar{public int AccessFoo() {return new Foo().Version();}}", fooV1, "Bar");
-            var fooV2 = Compiler.CompileAndCopyLocal(@"public class Foo{public int Version() {return 2;}}", assemblyName: "Foo");
-
-            foreach (var file in Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "*.dll"))
-            {
-                Console.WriteLine(file);
-            }
+            var fooV1 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Foo", @"public class Foo{public int Version() {return 1;}}");
+            var barV1 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", fooV1);
+            var fooV2 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Foo", @"public class Foo{public int Version() {return 2;}}");
 
             dynamic foo = Assembly.LoadFrom(fooV2).CreateInstance("Foo");
             dynamic bar = Assembly.LoadFrom(barV1).CreateInstance("Bar");
