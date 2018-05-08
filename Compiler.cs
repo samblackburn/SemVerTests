@@ -10,9 +10,9 @@ namespace SemVerTests
         private const string c_MsBuild = @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe";
         private static int s_AssemblyNumber = 0;
 
-        internal static string CompileAndCopyLocal(string cs, string reference = null)
+        internal static string CompileAndCopyLocal(string cs, string reference = null, string assemblyName = null)
         {
-            var assemblyName = "Assembly" + ++s_AssemblyNumber;
+            assemblyName = assemblyName ?? "Assembly" + ++s_AssemblyNumber;
             using (var tempDir = new TempDir())
             {
                 if (reference != null)
