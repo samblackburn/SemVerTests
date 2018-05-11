@@ -15,8 +15,8 @@ namespace SemVerTests
         }
 
         private const string c_MsBuild = @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe";
-        
-        internal string CompileAndCopyLocal(string assemblySuffix, string cs, string reference = null)
+
+        internal Dll CompileAndCopyLocal(string assemblySuffix, string cs, Dll reference = null)
         {
             var assemblyName = $"{m_TestName}_{assemblySuffix}";
 
@@ -24,8 +24,8 @@ namespace SemVerTests
             {
                 if (reference != null)
                 {
-                    var copyOfReferenceDll = tempDir.PathTo(Path.GetFileName(reference));
-                    File.Copy(reference, copyOfReferenceDll);
+                    var copyOfReferenceDll = tempDir.PathTo(reference.FileName);
+                    File.Copy(reference.FilePath, copyOfReferenceDll);
                     tempDir[assemblyName + ".csproj"] = Csproj("class.cs", copyOfReferenceDll);
                 }
                 else
@@ -33,13 +33,13 @@ namespace SemVerTests
                     tempDir[assemblyName + ".csproj"] = Csproj("class.cs");
                 }
 
-                tempDir["class.cs"] = $"using System.Reflection;\r\n[assembly: AssemblyVersion(\"1.2.3.4\")]\r\n{cs}";
+                tempDir["class.cs"] = "using System.Reflection;\r\n[assembly: AssemblyVersion(\"1.2.3.4\")]\r\n" +cs;
                 RunMsbuild(tempDir, assemblyName + ".csproj");
 
                 var dll = tempDir.PathTo($@"bin\Debug\{assemblyName}.dll");
                 FileAssert.Exists(dll);
                 File.Copy(dll, $"{assemblyName}.dll", true);
-                return Path.Combine(Directory.GetCurrentDirectory(), assemblyName + ".dll");
+                return new Dll(Path.Combine(Directory.GetCurrentDirectory(), assemblyName + ".dll"));
             }
         }
 

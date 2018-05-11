@@ -13,7 +13,7 @@ namespace SemVerTests
             var compiler = new Compiler();
             var assembly = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}");
 
-            Assert.AreEqual(1, ((dynamic) Assembly.LoadFile(assembly).CreateInstance("Foo")).Version());
+            Assert.AreEqual(1, ((dynamic) Assembly.LoadFile(assembly.FilePath).CreateInstance("Foo")).Version());
         }
 
         /// <summary>
@@ -26,13 +26,13 @@ namespace SemVerTests
             var assembly1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}");
             var assembly2 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
 
-            dynamic foo = Assembly.LoadFile(assembly1).CreateInstance("Foo");
-            dynamic bar = Assembly.LoadFile(assembly2).CreateInstance("Bar");
+            dynamic foo = Assembly.LoadFile(assembly1.FilePath).CreateInstance("Foo");
+            dynamic bar = Assembly.LoadFile(assembly2.FilePath).CreateInstance("Bar");
 
             Assert.AreEqual(1, foo.Version());
             var ex = Assert.Throws<FileNotFoundException>(() => bar.AccessFoo());
 
-            StringAssert.Contains(Path.GetFileNameWithoutExtension(assembly1), ex.Message);
+            StringAssert.Contains(Path.GetFileNameWithoutExtension(assembly1.FilePath), ex.Message);
         }
 
         /// <summary>
@@ -45,8 +45,8 @@ namespace SemVerTests
             var assembly1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}");
             var assembly2 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
 
-            dynamic foo = Assembly.LoadFrom(assembly1).CreateInstance("Foo");
-            dynamic bar = Assembly.LoadFrom(assembly2).CreateInstance("Bar");
+            dynamic foo = Assembly.LoadFrom(assembly1.FilePath).CreateInstance("Foo");
+            dynamic bar = Assembly.LoadFrom(assembly2.FilePath).CreateInstance("Bar");
 
             Assert.AreEqual(1, bar.AccessFoo());
         }
@@ -62,8 +62,8 @@ namespace SemVerTests
             var barV1 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", fooV1);
             var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 2;}}");
 
-            dynamic foo = Assembly.LoadFrom(fooV2).CreateInstance("Foo");
-            dynamic bar = Assembly.LoadFrom(barV1).CreateInstance("Bar");
+            dynamic foo = fooV2.CreateInstance("Foo");
+            dynamic bar = barV1.CreateInstance("Bar");
 
             Assert.AreEqual(2, bar.AccessFoo());
         }
@@ -79,8 +79,8 @@ namespace SemVerTests
             var barV1 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Deprecated();}}", fooV1);
             var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{}");
 
-            dynamic foo = Assembly.LoadFrom(fooV2).CreateInstance("Foo");
-            dynamic bar = Assembly.LoadFrom(barV1).CreateInstance("Bar");
+            dynamic foo = fooV2.CreateInstance("Foo");
+            dynamic bar = barV1.CreateInstance("Bar");
 
             Assert.Throws<MissingMethodException>(() => bar.AccessFoo());
         }

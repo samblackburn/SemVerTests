@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Compiler.cs" />
+    <Compile Include="Dll.cs" />
     <Compile Include="MsBuildTests.cs" />
     <Compile Include="ProcessRunner.cs" />
     <Compile Include="ProgrammaticCompilationTests.cs" />
