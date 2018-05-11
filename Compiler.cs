@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using SACrunch;
 
@@ -6,10 +7,19 @@ namespace SemVerTests
 {
     internal class Compiler
     {
+        private readonly string m_TestName;
+
+        public Compiler([CallerMemberName] string uniqueTestName = null)
+        {
+            m_TestName = uniqueTestName;
+        }
+
         private const string c_MsBuild = @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe";
         
-        internal static string CompileAndCopyLocal(string assemblyName, string cs, string reference = null)
+        internal string CompileAndCopyLocal(string assemblySuffix, string cs, string reference = null)
         {
+            var assemblyName = $"{m_TestName}_{assemblySuffix}";
+
             using (var tempDir = new TempDir())
             {
                 if (reference != null)

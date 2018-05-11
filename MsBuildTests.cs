@@ -10,7 +10,8 @@ namespace SemVerTests
         [Test]
         public void CanCompileCode()
         {
-            var assembly = Compiler.CompileAndCopyLocal(nameof(CanCompileCode), @"public class Foo{public int Version() {return 1;}}");
+            var compiler = new Compiler();
+            var assembly = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}");
 
             Assert.AreEqual(1, ((dynamic) Assembly.LoadFile(assembly).CreateInstance("Foo")).Version());
         }
@@ -21,8 +22,9 @@ namespace SemVerTests
         [Test]
         public void FailToReferenceADll()
         {
-            var assembly1 = Compiler.CompileAndCopyLocal(nameof(FailToReferenceADll) + "Foo", @"public class Foo{public int Version() {return 1;}}");
-            var assembly2 = Compiler.CompileAndCopyLocal(nameof(FailToReferenceADll) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
+            var compiler = new Compiler();
+            var assembly1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}");
+            var assembly2 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
 
             dynamic foo = Assembly.LoadFile(assembly1).CreateInstance("Foo");
             dynamic bar = Assembly.LoadFile(assembly2).CreateInstance("Bar");
@@ -39,8 +41,9 @@ namespace SemVerTests
         [Test]
         public void SuccessfullyReferenceADll()
         {
-            var assembly1 = Compiler.CompileAndCopyLocal(nameof(SuccessfullyReferenceADll) + "Foo", @"public class Foo{public int Version() {return 1;}}");
-            var assembly2 = Compiler.CompileAndCopyLocal(nameof(SuccessfullyReferenceADll) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
+            var compiler = new Compiler();
+            var assembly1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}");
+            var assembly2 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", assembly1);
 
             dynamic foo = Assembly.LoadFrom(assembly1).CreateInstance("Foo");
             dynamic bar = Assembly.LoadFrom(assembly2).CreateInstance("Bar");
@@ -54,9 +57,10 @@ namespace SemVerTests
         [Test]
         public void UpgradeAfterCompile()
         {
-            var fooV1 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Foo", @"public class Foo{public int Version() {return 1;}}");
-            var barV1 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", fooV1);
-            var fooV2 = Compiler.CompileAndCopyLocal(nameof(UpgradeAfterCompile) + "Foo", @"public class Foo{public int Version() {return 2;}}");
+            var compiler = new Compiler();
+            var fooV1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}");
+            var barV1 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Version();}}", fooV1);
+            var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 2;}}");
 
             dynamic foo = Assembly.LoadFrom(fooV2).CreateInstance("Foo");
             dynamic bar = Assembly.LoadFrom(barV1).CreateInstance("Bar");
@@ -70,9 +74,10 @@ namespace SemVerTests
         [Test]
         public void MethodNotFound()
         {
-            var fooV1 = Compiler.CompileAndCopyLocal(nameof(MethodNotFound) + "Foo", @"public class Foo{public int Deprecated() {return 1;}}");
-            var barV1 = Compiler.CompileAndCopyLocal(nameof(MethodNotFound) + "Bar", @"public class Bar{public int AccessFoo() {return new Foo().Deprecated();}}", fooV1);
-            var fooV2 = Compiler.CompileAndCopyLocal(nameof(MethodNotFound) + "Foo", @"public class Foo{}");
+            var compiler = new Compiler();
+            var fooV1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Deprecated() {return 1;}}");
+            var barV1 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Deprecated();}}", fooV1);
+            var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{}");
 
             dynamic foo = Assembly.LoadFrom(fooV2).CreateInstance("Foo");
             dynamic bar = Assembly.LoadFrom(barV1).CreateInstance("Bar");
