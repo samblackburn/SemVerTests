@@ -33,7 +33,7 @@ namespace SemVerTests
                     tempDir[assemblyName + ".csproj"] = Csproj("class.cs");
                 }
 
-                tempDir["class.cs"] = cs;
+                tempDir["class.cs"] = $"using System.Reflection;\r\n[assembly: AssemblyVersion(\"1.2.3.4\")]\r\n{cs}";
                 RunMsbuild(tempDir, assemblyName + ".csproj");
 
                 var dll = tempDir.PathTo($@"bin\Debug\{assemblyName}.dll");
@@ -76,7 +76,7 @@ namespace SemVerTests
                 return null;
             }
 
-            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll)}, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
+            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll)}, Version=1.2.3.4, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
       <HintPath>{referenceDll}</HintPath>
     </Reference>";
         }
