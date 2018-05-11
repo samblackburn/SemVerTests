@@ -58,6 +58,8 @@ namespace SemVerTests
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>\\red-gate.com\Files\RG_Build_Key\RedGate.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include=""{sourceFile}"" />
@@ -74,7 +76,7 @@ namespace SemVerTests
                 return null;
             }
 
-            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll)}"">
+            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll)}, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
       <HintPath>{referenceDll}</HintPath>
     </Reference>";
         }
