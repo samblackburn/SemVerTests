@@ -16,7 +16,7 @@ namespace SemVerTests
                 {
                     var copyOfReferenceDll = tempDir.PathTo(Path.GetFileName(reference));
                     File.Copy(reference, copyOfReferenceDll);
-                    tempDir[assemblyName + ".csproj"] = CsprojWithReference("class.cs", copyOfReferenceDll);
+                    tempDir[assemblyName + ".csproj"] = Csproj("class.cs", copyOfReferenceDll);
                 }
                 else
                 {
@@ -41,7 +41,7 @@ namespace SemVerTests
             StringAssert.DoesNotContain("Build FAILED.", buildOutput);
         }
 
-        private static string Csproj(string sourceFile)
+        private static string Csproj(string sourceFile, string referenceDll = null)
         {
             return $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""15.0"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
@@ -51,27 +51,22 @@ namespace SemVerTests
   </PropertyGroup>
   <ItemGroup>
     <Compile Include=""{sourceFile}"" />
+    {ReferenceForCsproj(referenceDll)}
   </ItemGroup>
   <Import Project=""$(MSBuildToolsPath)\Microsoft.CSharp.targets"" />
 </Project>";
         }
 
-        private static string CsprojWithReference(string sourceFile, string referenceDll)
+        private static string ReferenceForCsproj(string referenceDll)
         {
-            return $@"<?xml version=""1.0"" encoding=""utf-8""?>
-<Project ToolsVersion=""15.0"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
-  <PropertyGroup>
-    <OutputType>Library</OutputType>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Include=""{sourceFile}"" />
-     <Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll)}"">
+            if (referenceDll == null)
+            {
+                return null;
+            }
+
+            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll)}"">
       <HintPath>{referenceDll}</HintPath>
-    </Reference>
-  </ItemGroup>
-  <Import Project=""$(MSBuildToolsPath)\Microsoft.CSharp.targets"" />
-</Project>";
+    </Reference>";
         }
     }
 }
