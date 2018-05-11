@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 
 namespace SemVerTests
@@ -6,10 +7,12 @@ namespace SemVerTests
     internal class Dll
     {
         public readonly string FilePath;
-
-        public Dll(string filePath)
+        public readonly Version Version;
+        
+        public Dll(string filePath, Version version)
         {
             FilePath = filePath;
+            Version = version;
         }
 
         public string FileName => Path.GetFileName(FilePath);
@@ -23,7 +26,7 @@ namespace SemVerTests
         {
             var destination = tempDir.PathTo(FileName);
             File.Copy(FilePath, destination);
-            return new Dll(destination);
+            return new Dll(destination, Version);
         }
     }
 }

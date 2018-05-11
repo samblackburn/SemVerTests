@@ -17,8 +17,9 @@ namespace SemVerTests
 
         private const string c_MsBuild = @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe";
 
-        internal Dll CompileAndCopyLocal(string assemblySuffix, string cs, Dll reference = null)
+        internal Dll CompileAndCopyLocal(string assemblySuffix, string cs, Dll reference = null, Version version = null)
         {
+            version = version ?? new Version(0, 0, 0, 0);
             var assemblyName = $"{m_TestName}_{assemblySuffix}";
 
             using (var tempDir = new TempDir())
@@ -26,13 +27,13 @@ namespace SemVerTests
                 var copyOfReferenceDll = reference?.CopyTo(tempDir);
                 tempDir[assemblyName + ".csproj"] = Csproj("class.cs", copyOfReferenceDll);
 
-                tempDir["class.cs"] = "using System.Reflection;\r\n[assembly: AssemblyVersion(\"1.2.3.4\")]\r\n" + cs;
+                tempDir["class.cs"] = $"using System.Reflection;\r\n[assembly: AssemblyVersion(\"{version}\")]\r\n" + cs;
                 RunMsbuild(tempDir, assemblyName + ".csproj");
 
                 var dll = tempDir.PathTo($@"bin\Debug\{assemblyName}.dll");
                 FileAssert.Exists(dll);
                 File.Copy(dll, $"{assemblyName}.dll", true);
-                return new Dll(Path.Combine(Directory.GetCurrentDirectory(), assemblyName + ".dll"));
+                return new Dll(Path.Combine(Directory.GetCurrentDirectory(), assemblyName + ".dll"), version);
             }
         }
 
@@ -69,7 +70,7 @@ namespace SemVerTests
                 return null;
             }
 
-            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll.FileName)}, Version=1.2.3.4, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
+            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll.FileName)}, Version={referenceDll.Version}, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
       <HintPath>{referenceDll.FilePath}</HintPath>
     </Reference>";
         }
