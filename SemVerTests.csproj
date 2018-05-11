@@ -49,6 +49,7 @@
     <Compile Include="Compiler.cs" />
     <Compile Include="Dll.cs" />
     <Compile Include="FourPartVersioningTests.cs" />
+    <Compile Include="MajorVersionOnlyTests.cs" />
     <Compile Include="MsBuildTests.cs" />
     <Compile Include="ProcessRunner.cs" />
     <Compile Include="ProgrammaticCompilationTests.cs" />
