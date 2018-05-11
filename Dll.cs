@@ -16,6 +16,7 @@ namespace SemVerTests
         }
 
         public string FileName => Path.GetFileName(FilePath);
+        public string AssemblyName => Path.GetFileNameWithoutExtension(FilePath);
 
         public dynamic CreateInstance(string typeName)
         {

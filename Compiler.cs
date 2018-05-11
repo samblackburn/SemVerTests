@@ -70,7 +70,7 @@ namespace SemVerTests
                 return null;
             }
 
-            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll.FileName)}, Version={referenceDll.Version}, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
+            return $@"<Reference Include=""{referenceDll.AssemblyName}, Version={referenceDll.Version}, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
       <HintPath>{referenceDll.FilePath}</HintPath>
     </Reference>";
         }

@@ -32,7 +32,7 @@ namespace SemVerTests
             Assert.AreEqual(1, foo.Version());
             var ex = Assert.Throws<FileNotFoundException>(() => bar.AccessFoo());
 
-            StringAssert.Contains(Path.GetFileNameWithoutExtension(assembly1.FilePath), ex.Message);
+            StringAssert.Contains(assembly1.AssemblyName, ex.Message);
         }
 
         /// <summary>
@@ -83,6 +83,21 @@ namespace SemVerTests
             dynamic bar = barV1.CreateInstance("Bar");
 
             Assert.Throws<MissingMethodException>(() => bar.AccessFoo());
+        }
+
+        [Test]
+        public void VersionMismatch()
+        {
+            var compiler = new Compiler();
+            var fooV1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Deprecated() {return 1;}}", version: new Version(1, 0, 0, 0));
+            var barV1 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Deprecated();}}", fooV1);
+            var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{}", version: new Version(2, 0, 0, 0));
+
+            dynamic foo = fooV2.CreateInstance("Foo");
+            dynamic bar = barV1.CreateInstance("Bar");
+
+            var ex = Assert.Throws<FileNotFoundException>(() => bar.AccessFoo());
+            StringAssert.Contains(fooV1.AssemblyName, ex.Message);
         }
     }
 }
