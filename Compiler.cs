@@ -24,8 +24,7 @@ namespace SemVerTests
             {
                 if (reference != null)
                 {
-                    var copyOfReferenceDll = tempDir.PathTo(reference.FileName);
-                    File.Copy(reference.FilePath, copyOfReferenceDll);
+                    var copyOfReferenceDll = reference.CopyTo(tempDir);
                     tempDir[assemblyName + ".csproj"] = Csproj("class.cs", copyOfReferenceDll);
                 }
                 else
