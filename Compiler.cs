@@ -22,17 +22,10 @@ namespace SemVerTests
 
             using (var tempDir = new TempDir())
             {
-                if (reference != null)
-                {
-                    var copyOfReferenceDll = reference.CopyTo(tempDir);
-                    tempDir[assemblyName + ".csproj"] = Csproj("class.cs", copyOfReferenceDll);
-                }
-                else
-                {
-                    tempDir[assemblyName + ".csproj"] = Csproj("class.cs");
-                }
+                var copyOfReferenceDll = reference?.CopyTo(tempDir);
+                tempDir[assemblyName + ".csproj"] = Csproj("class.cs", copyOfReferenceDll);
 
-                tempDir["class.cs"] = "using System.Reflection;\r\n[assembly: AssemblyVersion(\"1.2.3.4\")]\r\n" +cs;
+                tempDir["class.cs"] = "using System.Reflection;\r\n[assembly: AssemblyVersion(\"1.2.3.4\")]\r\n" + cs;
                 RunMsbuild(tempDir, assemblyName + ".csproj");
 
                 var dll = tempDir.PathTo($@"bin\Debug\{assemblyName}.dll");
