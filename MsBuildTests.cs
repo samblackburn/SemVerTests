@@ -86,18 +86,17 @@ namespace SemVerTests
         }
 
         [Test]
-        public void VersionMismatch()
+        public void LoadTwoVersionsOfADll()
         {
             var compiler = new Compiler();
-            var fooV1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Deprecated() {return 1;}}", version: new Version(1, 0, 0, 0));
-            var barV1 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Deprecated();}}", fooV1);
-            var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{}", version: new Version(2, 0, 0, 0));
+            var fooV1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 1;}}", version: new Version(1, 0, 0, 0)).Rename("Foo_v1.dll");
+            var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Version() {return 2;}}", version: new Version(2, 0, 0, 0)).Rename("Foo_v2.dll");
 
-            dynamic foo = fooV2.CreateInstance("Foo");
-            dynamic bar = barV1.CreateInstance("Bar");
+            dynamic foo1 = fooV1.CreateInstance("Foo");
+            dynamic foo2 = fooV2.CreateInstance("Foo");
 
-            var ex = Assert.Throws<FileNotFoundException>(() => bar.AccessFoo());
-            StringAssert.Contains(fooV1.AssemblyName, ex.Message);
+            Assert.AreEqual(1, foo1.Version());
+            Assert.AreEqual(2, foo2.Version());
         }
     }
 }
