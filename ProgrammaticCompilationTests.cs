@@ -4,6 +4,11 @@ using NUnit.Framework;
 
 namespace SemVerTests
 {
+    /// <summary>
+    /// I gave up on this approach because CSharpCodeProvider is too clever and
+    /// prevents the caller from deleting/replacing referenced DLLs.  I couldn't
+    /// reproduce any assembly load or missing method errors using this technique.
+    /// </summary>
     public class ProgrammaticCompilationTests
     {
         [Test]
