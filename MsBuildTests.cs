@@ -98,5 +98,23 @@ namespace SemVerTests
             Assert.AreEqual(1, foo1.Version());
             Assert.AreEqual(2, foo2.Version());
         }
+
+        /// <summary>
+        /// Here we compile Bar against Foo v1 and load v2 followed by v1 at runtime
+        /// </summary>
+        [Test]
+        public void MajorVersionsCanCoexist()
+        {
+            var compiler = new Compiler();
+            var fooV1 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{public int Deprecated() {return 1;}}", version: new Version(1, 0, 0, 0)).Rename("Foo_deprecated.dll");
+            var barV1 = compiler.CompileAndCopyLocal("Bar", @"public class Bar{public int AccessFoo() {return new Foo().Deprecated();}}", fooV1);
+            var fooV2 = compiler.CompileAndCopyLocal("Foo", @"public class Foo{}", version: new Version(2, 0, 0, 0)).Rename("Foo_missing.dll");
+
+            dynamic foo2 = fooV2.CreateInstance("Foo");
+            dynamic foo1 = fooV1.CreateInstance("Foo");
+            dynamic bar = barV1.CreateInstance("Bar");
+
+            Assert.DoesNotThrow(() => bar.AccessFoo());
+        }
     }
 }

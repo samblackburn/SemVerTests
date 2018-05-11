@@ -8,15 +8,21 @@ namespace SemVerTests
     {
         public readonly string FilePath;
         public readonly Version Version;
-        
-        public Dll(string filePath, Version version)
+
+        public Dll(string filePath, Version version) :
+            this(filePath, version, Path.GetFileNameWithoutExtension(filePath))
+        {
+        }
+
+        public Dll(string filePath, Version version, string assemblyName)
         {
             FilePath = filePath;
             Version = version;
+            AssemblyName = assemblyName;
         }
 
+        public string AssemblyName { get; }
         public string FileName => Path.GetFileName(FilePath);
-        public string AssemblyName => Path.GetFileNameWithoutExtension(FilePath);
         public string Folder => Path.GetDirectoryName(FilePath);
 
         public dynamic CreateInstance(string typeName)
@@ -28,7 +34,7 @@ namespace SemVerTests
         {
             var destination = tempDir.PathTo(FileName);
             File.Copy(FilePath, destination);
-            return new Dll(destination, Version);
+            return new Dll(destination, Version, AssemblyName);
         }
 
         public Dll Rename(string newName)
@@ -36,7 +42,7 @@ namespace SemVerTests
             var newFilePath = Path.Combine(Folder, newName);
             if (File.Exists(newFilePath)) File.Delete(newFilePath);
             File.Move(FilePath, newFilePath);
-            return new Dll(newFilePath, Version);
+            return new Dll(newFilePath, Version, AssemblyName);
         }
     }
 }
