@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using SACrunch;
@@ -43,7 +44,7 @@ namespace SemVerTests
             StringAssert.DoesNotContain("Build FAILED.", buildOutput);
         }
 
-        private static string Csproj(string sourceFile, string referenceDll = null)
+        private static string Csproj(string sourceFile, Dll referenceDll)
         {
             return $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""15.0"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
@@ -61,15 +62,15 @@ namespace SemVerTests
 </Project>";
         }
 
-        private static string ReferenceForCsproj(string referenceDll)
+        private static string ReferenceForCsproj(Dll referenceDll)
         {
             if (referenceDll == null)
             {
                 return null;
             }
 
-            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll)}, Version=1.2.3.4, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
-      <HintPath>{referenceDll}</HintPath>
+            return $@"<Reference Include=""{Path.GetFileNameWithoutExtension(referenceDll.FileName)}, Version=1.2.3.4, Culture=neutral, PublicKeyToken=7f465a1c156d4d57"">
+      <HintPath>{referenceDll.FilePath}</HintPath>
     </Reference>";
         }
     }

@@ -19,11 +19,11 @@ namespace SemVerTests
             return Assembly.LoadFrom(FilePath).CreateInstance(typeName);
         }
 
-        public string CopyTo(TempDir tempDir)
+        public Dll CopyTo(TempDir tempDir)
         {
             var destination = tempDir.PathTo(FileName);
             File.Copy(FilePath, destination);
-            return destination;
+            return new Dll(destination);
         }
     }
 }
