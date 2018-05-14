@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyResolveEventTests.cs" />
     <Compile Include="Compiler.cs" />
     <Compile Include="Dll.cs" />
     <Compile Include="FourPartVersioningTests.cs" />
