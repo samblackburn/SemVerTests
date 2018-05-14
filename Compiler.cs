@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using SACrunch;
@@ -25,9 +26,13 @@ namespace SemVerTests
             using (var tempDir = new TempDir())
             {
                 var copyOfReferenceDll = reference?.CopyTo(tempDir);
-                tempDir[assemblyName + ".csproj"] = Csproj("class.cs", copyOfReferenceDll);
+                tempDir[assemblyName + ".csproj"] = Csproj(
+                    IncludeSourceFile("class.cs"),
+                    IncludeSourceFile("assemblyInfo.cs"),
+                    ReferenceForCsproj(copyOfReferenceDll));
 
-                tempDir["class.cs"] = $"using System.Reflection;\r\n[assembly: AssemblyVersion(\"{version}\")]\r\n" + cs;
+                tempDir["assemblyinfo.cs"] = $"using System.Reflection;\r\n[assembly: AssemblyVersion(\"{version}\")]";
+                tempDir["class.cs"] = cs;
                 RunMsbuild(tempDir, assemblyName + ".csproj");
 
                 var dll = tempDir.PathTo($@"bin\Debug\{assemblyName}.dll");
@@ -45,7 +50,7 @@ namespace SemVerTests
             StringAssert.DoesNotContain("Build FAILED.", buildOutput);
         }
 
-        private static string Csproj(string sourceFile, Dll referenceDll)
+        private static string Csproj(params string[] includeItems)
         {
             return $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <Project ToolsVersion=""15.0"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">
@@ -56,11 +61,15 @@ namespace SemVerTests
     <AssemblyOriginatorKeyFile>\\red-gate.com\Files\RG_Build_Key\RedGate.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include=""{sourceFile}"" />
-    {ReferenceForCsproj(referenceDll)}
+    {string.Join(Environment.NewLine, includeItems)}
   </ItemGroup>
   <Import Project=""$(MSBuildToolsPath)\Microsoft.CSharp.targets"" />
 </Project>";
+        }
+
+        private static string IncludeSourceFile(string sourceFile)
+        {
+            return $@"<Compile Include=""{sourceFile}"" />";
         }
 
         private static string ReferenceForCsproj(Dll referenceDll)
