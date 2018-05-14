@@ -26,7 +26,7 @@ namespace SemVerTests
             // SSMS comes along and loads everything, unfortunately in the wrong order
             oldSharedLibrary.CreateInstance("Utils");
             newSharedLibrary.CreateInstance("Utils");
-            soc.CreateInstance("UI");
+            soc.CreateInstance("Ui");
             var ui = prompt.CreateInstance("Ui");
 
             // But sadly...
