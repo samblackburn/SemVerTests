@@ -16,7 +16,7 @@ namespace SemVerTests
             m_TestName = uniqueTestName;
         }
 
-        private const string c_MsBuild = @"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe";
+        private const string c_MsBuild = @"C:\Windows\Microsoft.NET\Framework\v4.0.30319\msbuild.exe";
 
         internal Dll CompileAndCopyLocal(string assemblySuffix, string cs, Dll reference = null, Version version = null)
         {
